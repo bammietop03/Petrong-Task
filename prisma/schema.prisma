@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReactionType {
+  LIKE
+  LAUGH
+  DISLIKE
+  CLAP
+}
+
+model User {
+  id                    String      @id @default(uuid())
+  email                 String      @unique
+  password              String
+  firstName             String?
+  lastName              String?
+  isSubscribed          Boolean     @default(false)
+  subscriptionEndDate   DateTime?
+  paystackCustomerId    String?
+  paystackSubscriptionCode String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  todos                 Todo[]
+  reactions             Reaction[]
+  comments              Comment[]
+  shares                Share[]
+
+  @@map("users")
+}
+
+model Todo {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  completed   Boolean     @default(false)
+  userId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reactions   Reaction[]
+  comments    Comment[]
+  shares      Share[]
+
+  @@index([userId])
+  @@map("todos")
+}
+
+model Reaction {
+  id        String        @id @default(uuid())
+  type      ReactionType
+  todoId    String
+  userId    String
+  createdAt DateTime      @default(now())
+
+  todo      Todo          @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([todoId, userId, type])
+  @@index([todoId])
+  @@index([userId])
+  @@map("reactions")
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  content   String
+  todoId    String
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  todo      Todo      @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([todoId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Share {
+  id        String    @id @default(uuid())
+  todoId    String
+  userId    String
+  createdAt DateTime  @default(now())
+
+  todo      Todo      @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([todoId, userId])
+  @@index([todoId])
+  @@index([userId])
+  @@map("shares")
+}
