@@ -18,22 +18,27 @@ enum ReactionType {
 }
 
 model User {
-  id                    String      @id @default(uuid())
-  email                 String      @unique
-  password              String
-  firstName             String?
-  lastName              String?
-  isSubscribed          Boolean     @default(false)
-  subscriptionEndDate   DateTime?
-  paystackCustomerId    String?
+  id                       String      @id @default(uuid())
+  email                    String      @unique
+  password                 String
+  firstName                String?
+  lastName                 String?
+  isSubscribed             Boolean     @default(false)
+  subscriptionEndDate      DateTime?
+  paystackCustomerId       String?
   paystackSubscriptionCode String?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  isEmailVerified          Boolean     @default(false)
+  emailVerificationToken   String?     @unique
+  emailVerificationExpiry  DateTime?
+  resetPasswordToken       String?     @unique
+  resetPasswordExpiry      DateTime?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
 
-  todos                 Todo[]
-  reactions             Reaction[]
-  comments              Comment[]
-  shares                Share[]
+  todos                    Todo[]
+  reactions                Reaction[]
+  comments                 Comment[]
+  shares                   Share[]
 
   @@map("users")
 }
